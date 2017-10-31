@@ -1,0 +1,131 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../google-apis/google-maps-api.html">
+<link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html">
+<link rel="import" href="../iron-form-element-behavior/iron-form-element-behavior.html">
+
+<dom-module id="titanium-address-input">
+	<template>
+		<style>
+
+		</style>
+
+		<paper-input invalid=[[invalid]] id="addressInput" value="{{value}}" error-message="Address not valid" label="Prize Mailing Address">
+		</paper-input>
+
+		<google-maps-api libraries="places" api-key="[[apiKey]]" on-api-load="onApiLoad"></google-maps-api>
+
+	</template>
+	<script>
+		if (Polymer.Element) {
+			// Polymer 2
+			class TitaniumAddressInput extends Polymer.Element {
+				static get is() {
+					return 'titanium-address-input';
+				}
+
+				static get properties() {
+					return {
+						roles: Array,
+						page: String,
+						isDev: Boolean,
+						devPrefix: {
+							type: String,
+							value: ''
+						}
+					};
+				}
+
+				static get observers() {
+					return ['_onRoleChange(roles.splices)', '_isDevChanged(isDev)']
+				}
+			}
+			customElements.define(TitaniumAddressInput.is, TitaniumAddressInput);
+		} else {
+			// Polymer 1
+			Polymer({
+				is: 'titanium-address-input',
+				properties: {
+					apiKey: String,
+					value: String,
+					place: Object,
+					autocomplete: Object,
+					ignoreChange: Boolean,
+					address: {
+						notify: true,
+						type: Object,
+						value: {
+							street1: '',
+							city: '',
+							state: '',
+							zipCode: ''
+						}
+					}
+				},
+				behaviors: [
+					Polymer.IronValidatableBehavior,
+					Polymer.IronFormElementBehavior
+				],
+				observers: ['onValueChanged(value)'],
+				onValueChanged(value) {
+					if (this.ignoreChange) {
+						return;
+					}
+					this.place = null;
+					this.set('address.street1', '');
+					this.set('address.city', '');
+					this.set('address.state', '');
+					this.set('address.zipCode', '');
+				},
+				_getValidity(value) {
+					return this.place && this.place.address_components && this.place.address_components.length >= 7;
+				},
+				onApiLoad: function () {
+					if (this.$.addressInput) {
+						let input = this.$.addressInput.$.input.children[0];
+						this.autocomplete = new google.maps.places.Autocomplete(input, {
+							types: ['address']
+						});
+						google.maps.event.addListener(this.autocomplete, 'place_changed', this.onChangePlace.bind(this));
+					}
+				},
+				onChangePlace: function () {
+					this.place = this.autocomplete.getPlace();
+					/* Dont save answers.address to the server! */
+
+					if (this.place && this.place.address_components) {
+						let stateComponent = this.place.address_components.filter(o => o.types.some(p => p ===
+							'administrative_area_level_1'))[0];
+						let streetNumberComponent = this.place.address_components.filter(o => o.types.some(p => p === 'street_number'))[
+							0];
+						let streetAddressComponent = this.place.address_components.filter(o => o.types.some(p => p === 'route'))[0];
+						let cityComponent = this.place.address_components.filter(o => o.types.some(p => p === 'locality'))[0];
+						let zipCodeComponent = this.place.address_components.filter(o => o.types.some(p => p === 'postal_code'))[0];
+
+						if (stateComponent && streetNumberComponent && streetAddressComponent && cityComponent && zipCodeComponent) {
+							this.set('address.street1', streetNumberComponent.short_name + ' ' + streetAddressComponent
+								.short_name);
+							this.set('address.city', cityComponent.short_name);
+							this.set('address.state', stateComponent.short_name);
+							this.set('address.zipCode', zipCodeComponent.short_name);
+							this.ignoreChange = true;
+							this.value = this.formatAddress(this.address.street1, this.address.city, this.address.state, this.address.zipCode);
+							this.ignoreChange = false;
+						} else {
+							this.set('address.street1', '');
+							this.set('address.city', '');
+							this.set('address.state', '');
+							this.set('address.zipCode', '');
+						}
+					}
+				},
+				formatAddress: function (street, city, state, zipCode) {
+					if (!street || !zipCode || !city || !state)
+						return null;
+
+					return `${street} ${city}, ${state} ${zipCode}`;
+				}
+			});
+		}
+	</script>
+</dom-module>

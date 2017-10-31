@@ -1,0 +1,45 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/polymer2-ts/polymer2-ts.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+<link rel="import" href="bower_components/paper-toggle-button/paper-toggle-button.html">
+
+<link rel="import" href="bower_components/titanium-address-input/titanium-address-input.html">
+
+<dom-module id="titanium-address-input-demo">
+    <template>
+        <style>
+             :host {
+                display: block;
+                margin: 16px;
+            }
+
+            h3 {
+                margin: 8px;
+            }
+
+            .menu-container {
+                margin: 8px;
+                height: 400px;
+                width: 300px;
+                border: 1px dashed black;
+                overflow-y: auto;
+            }
+
+            paper-button {
+                margin: 8px;
+            }
+        </style>
+
+        <h3>Titanium Address Input Demo</h3>
+        <div class="menu-container">
+            <titanium-address-input is-dev="[[isDev]]" roles="[[roles]]" page="log-parser"></titanium-address-input>
+        </div>
+        <paper-input label="Role Name" value="{{role}}"></paper-input>
+        <paper-button id="addRoleButton" raised>Add Role</paper-button>
+        <paper-button id="clearRolesButton" raised> Clear Roles</paper-button>
+        <paper-toggle-button checked="{{isDev}}">Is Development</paper-toggle-button>
+    </template>
+    <script src="titanium-address-input-demo.js">
+    </script>
+</dom-module>
