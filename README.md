@@ -13,9 +13,6 @@ Hybrid Polymer 1.x - 2.x compatible.
   <template>
     <link rel="import" href="titanium-address-input.html">
         <style>
-          div {
-                margin:64px 16px;
-          }
         </style>
     <next-code-block></next-code-block>
   </template>
@@ -23,8 +20,10 @@ Hybrid Polymer 1.x - 2.x compatible.
 ```
 -->
 ```html
-<div>
-        <titanium-address-input label="Home Address" api-key="AIzaSyCTiFwEzAkuXWgFQTr4GGAX5VpYR2aVxzw">
-        </titanium-address-input>
-</div>
+<titanium-address-input label="Home Address" api-key="AIzaSyCTiFwEzAkuXWgFQTr4GGAX5VpYR2aVxzw">
+</titanium-address-input>
+
+<titanium-address-input label="Beach Home Address" api-key="AIzaSyCTiFwEzAkuXWgFQTr4GGAX5VpYR2aVxzw">
+   <div slot="prefix">&#9996;</div>
+</titanium-address-input>
 ```
