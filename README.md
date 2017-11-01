@@ -6,13 +6,24 @@ To install use: `bower install --save titanium-address-input`
 
 [ LIVE DEMO AND API ](https://www.webcomponents.org/element/LssPolymerElements/titanium-address-input)
 
+<!--
+```
+<custom-element-demo>
+  <template>
+    <link rel="import" href="titanium-address-input.html">
+        <style>
+          div {
+                margin:64px 16px;
+          }
+        </style>
+    <next-code-block></next-code-block>
+  </template>
+</custom-element-demo>
+```
+-->
 ```html
-        <h3>Titanium Address Input Demo</h3>
-
-        <titanium-address-input placeholder="Select Address" required always-float-label label="Home Address" api-key="AIzaSyCTiFwEzAkuXWgFQTr4GGAX5VpYR2aVxzw">
-                        <div slot="prefix">:-) </div>
-                        <div slot="suffix">Z </div>
-                    </titanium-address-input>
-        
-        
+<div>
+        <titanium-address-input label="Home Address" api-key="AIzaSyCTiFwEzAkuXWgFQTr4GGAX5VpYR2aVxzw">
+        </titanium-address-input>
+</div>
 ```
