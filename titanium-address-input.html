@@ -9,7 +9,7 @@
 		<style>
 
 		</style>
-		<google-maps-api libraries="places" api-key="[[apiKey]]" on-api-load="onApiLoad"></google-maps-api>
+		<google-maps-api libraries="places" api-key="[[apiKey]]" on-api-load="_onApiLoad"></google-maps-api>
 		<paper-input id="addressInput" invalid="[[invalid]]" readonly="[[readonly]]" value="{{value}}" always-float-label="[[alwaysFloatLabel]]"
 		    required="[[required]]" placeholder="[[placeholder]]" error-message="[[errorMessage]]" disabled="[[disabled]]" focused="{{focused}}"
 		    label="[[label]]">
@@ -147,17 +147,17 @@
 					return this.address && this.address.street1 && this.address.city && this.address.state && this.address.zipCode;
 				}
 
-				onApiLoad() {
+				_onApiLoad() {
 					if (this.$.addressInput) {
 						let input = this.$.addressInput.$.input.children[0];
 						this.autocomplete = new google.maps.places.Autocomplete(input, {
 							types: ['address']
 						});
-						google.maps.event.addListener(this.autocomplete, 'place_changed', this.onChangePlace.bind(this));
+						google.maps.event.addListener(this.autocomplete, 'place_changed', this._onChangePlace.bind(this));
 					}
 				}
 
-				onChangePlace() {
+				_onChangePlace() {
 					let place = this.autocomplete.getPlace();
 
 					if (place && place.address_components) {
@@ -176,7 +176,7 @@
 							this.set('address.state', stateComponent.short_name);
 							this.set('address.zipCode', zipCodeComponent.short_name);
 							this._ignoreChange = true;
-							this.value = this.formatAddress(this.address.street1, this.address.city, this.address.state, this.address.zipCode);
+							this.value = this._formatAddress(this.address.street1, this.address.city, this.address.state, this.address.zipCode);
 							this._ignoreChange = false;
 						} else {
 							this.set('address.street1', '');
@@ -187,7 +187,7 @@
 					}
 				}
 
-				formatAddress(street, city, state, zipCode) {
+				_formatAddress(street, city, state, zipCode) {
 					if (!street || !zipCode || !city || !state)
 						return null;
 
@@ -317,16 +317,16 @@
 
 					return this.address && this.address.street1 && this.address.city && this.address.state && this.address.zipCode;
 				},
-				onApiLoad: function () {
+				_onApiLoad: function () {
 					if (this.$.addressInput) {
 						let input = this.$.addressInput.$.input.children[0];
 						this.autocomplete = new google.maps.places.Autocomplete(input, {
 							types: ['address']
 						});
-						google.maps.event.addListener(this.autocomplete, 'place_changed', this.onChangePlace.bind(this));
+						google.maps.event.addListener(this.autocomplete, 'place_changed', this._onChangePlace.bind(this));
 					}
 				},
-				onChangePlace: function () {
+				_onChangePlace: function () {
 					let place = this.autocomplete.getPlace();
 
 					if (place && place.address_components) {
@@ -345,7 +345,7 @@
 							this.set('address.state', stateComponent.short_name);
 							this.set('address.zipCode', zipCodeComponent.short_name);
 							this._ignoreChange = true;
-							this.value = this.formatAddress(this.address.street1, this.address.city, this.address.state, this.address.zipCode);
+							this.value = this._formatAddress(this.address.street1, this.address.city, this.address.state, this.address.zipCode);
 							this._ignoreChange = false;
 						} else {
 							this.set('address.street1', '');
@@ -355,7 +355,7 @@
 						}
 					}
 				},
-				formatAddress: function (street, city, state, zipCode) {
+				_formatAddress: function (street, city, state, zipCode) {
 					if (!street || !zipCode || !city || !state)
 						return null;
 
