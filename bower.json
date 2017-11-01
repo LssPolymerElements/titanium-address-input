@@ -1,6 +1,6 @@
 {
   "name": "titanium-address-input",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "A simple address selection input that uses Google Maps API.",
   "authors": [
     "Leavitt Software Solutions"

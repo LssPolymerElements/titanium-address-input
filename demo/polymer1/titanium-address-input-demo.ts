@@ -8,7 +8,6 @@ class TitaniumAddressInputDemo extends polymer.Base {
   @listen('submitButton.tap')
   buttonTapped() {
     this.$.form.validate();
-    console.log('submitButton');
   }
 }
 TitaniumAddressInputDemo.register();

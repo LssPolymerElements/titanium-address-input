@@ -30,7 +30,10 @@
         <h3>Titanium Address Input Demo</h3>
         <div class="container">
             <form is="iron-form" id="form">
-                <titanium-address-input api-key="AIzaSyBO1C4Ek3L3sswvLxCjWIN-xgZayWyhp-k"></titanium-address-input>
+                <titanium-address-input placeholder="Select Address" required always-float-label label="Home Address" api-key="AIzaSyBO1C4Ek3L3sswvLxCjWIN-xgZayWyhp-k">
+                    <div slot="prefix">:-) </div>
+                    <div slot="suffix">Z </div>
+                </titanium-address-input>
             </form>
         </div>
         <paper-button id="submitButton" raised> Submit</paper-button>

@@ -1,8 +1,7 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="bower_components/polymer2-ts/polymer2-ts.html">
 <link rel="import" href="bower_components/paper-button/paper-button.html">
-<link rel="import" href="bower_components/paper-input/paper-input.html">
-<link rel="import" href="bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="bower_components/iron-form/iron-form.html">
 
 <link rel="import" href="bower_components/titanium-address-input/titanium-address-input.html">
 
@@ -18,27 +17,30 @@
                 margin: 8px;
             }
 
-            .menu-container {
+            .container {
                 margin: 8px;
-                height: 400px;
-                width: 300px;
+                height: 200px;
+                width: 500px;
                 border: 1px dashed black;
                 overflow-y: auto;
-            }
-
-            paper-button {
-                margin: 8px;
+                padding: 8px;
             }
         </style>
 
+
         <h3>Titanium Address Input Demo</h3>
-        <div class="menu-container">
-            <titanium-address-input is-dev="[[isDev]]" roles="[[roles]]" page="log-parser"></titanium-address-input>
+        <div class="container">
+            <iron-form id="form">
+                <form>
+                    <titanium-address-input placeholder="Select Address" required always-float-label label="Home Address" api-key="AIzaSyBO1C4Ek3L3sswvLxCjWIN-xgZayWyhp-k">
+                        <div slot="prefix">:-) </div>
+                        <div slot="suffix">Z </div>
+                    </titanium-address-input>
+                </form>
+            </iron-form>
+
         </div>
-        <paper-input label="Role Name" value="{{role}}"></paper-input>
-        <paper-button id="addRoleButton" raised>Add Role</paper-button>
-        <paper-button id="clearRolesButton" raised> Clear Roles</paper-button>
-        <paper-toggle-button checked="{{isDev}}">Is Development</paper-toggle-button>
+        <paper-button id="submitButton" raised> Submit</paper-button>
     </template>
     <script src="titanium-address-input-demo.js">
     </script>

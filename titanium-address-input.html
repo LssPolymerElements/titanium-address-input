@@ -9,35 +9,139 @@
 		<style>
 
 		</style>
-
-		<paper-input invalid=[[invalid]] id="addressInput" value="{{value}}" error-message="Address not valid" label="Prize Mailing Address">
-		</paper-input>
-
 		<google-maps-api libraries="places" api-key="[[apiKey]]" on-api-load="onApiLoad"></google-maps-api>
-
+		<paper-input id="addressInput" invalid="[[invalid]]" readonly="[[readonly]]" value="{{value}}" always-float-label="[[alwaysFloatLabel]]"
+		    required="[[required]]" placeholder="[[placeholder]]" error-message="[[errorMessage]]" disabled="[[disabled]]" focused="{{focused}}"
+		    label="[[label]]">
+			<slot name="prefix" slot="prefix"></slot>
+			<slot name="suffix" slot="suffix"></slot>
+		</paper-input>
 	</template>
 	<script>
 		if (Polymer.Element) {
 			// Polymer 2
-			class TitaniumAddressInput extends Polymer.Element {
+			class TitaniumAddressInput extends Polymer.mixinBehaviors([Polymer.IronValidatableBehavior, Polymer.IronFormElementBehavior],
+				Polymer.Element) {
 				static get is() {
 					return 'titanium-address-input';
 				}
 
 				static get properties() {
 					return {
-						roles: Array,
-						page: String,
-						isDev: Boolean,
-						devPrefix: {
+						apiKey: String,
+						value: String,
+						autocomplete: Object,
+						address: {
+							notify: true,
+							type: Object,
+							value: {
+								street1: '',
+								city: '',
+								state: '',
+								zipCode: ''
+							}
+						},
+						readonly: {
+							type: Boolean,
+							value: false
+						},
+						required: {
+							type: Boolean,
+							value: false
+						},
+						alwaysFloatLabel: {
+							type: Boolean,
+							value: false
+						},
+						disabled: {
+							type: Boolean,
+							value: false
+						},
+						focused: {
+							type: Boolean,
+							notify: true
+						},
+						placeholder: {
 							type: String,
 							value: ''
+						},
+						errorMessage: {
+							type: String,
+							value: 'Address not valid'
+						},
+						label: {
+							type: String
 						}
 					};
 				}
 
 				static get observers() {
-					return ['_onRoleChange(roles.splices)', '_isDevChanged(isDev)']
+					return ['onValueChanged(value)']
+				}
+
+				onValueChanged(value) {
+					if (this._ignoreChange) {
+						return;
+					}
+
+					this.set('address.street1', '');
+					this.set('address.city', '');
+					this.set('address.state', '');
+					this.set('address.zipCode', '');
+				}
+
+				_getValidity(value) {
+					if (!this.required)
+						return true;
+
+					return this.address && this.address.street1 && this.address.city && this.address.state && this.address.zipCode;
+				}
+
+				onApiLoad() {
+					if (this.$.addressInput) {
+						let input = this.$.addressInput.$.input.children[0];
+						this.autocomplete = new google.maps.places.Autocomplete(input, {
+							types: ['address']
+						});
+						google.maps.event.addListener(this.autocomplete, 'place_changed', this.onChangePlace.bind(this));
+					}
+				}
+
+				onChangePlace() {
+					let place = this.autocomplete.getPlace();
+
+					if (place && place.address_components) {
+						let stateComponent = place.address_components.filter(o => o.types.some(p => p ===
+							'administrative_area_level_1'))[0];
+						let streetNumberComponent = place.address_components.filter(o => o.types.some(p => p === 'street_number'))[
+							0];
+						let streetAddressComponent = place.address_components.filter(o => o.types.some(p => p === 'route'))[0];
+						let cityComponent = place.address_components.filter(o => o.types.some(p => p === 'locality'))[0];
+						let zipCodeComponent = place.address_components.filter(o => o.types.some(p => p === 'postal_code'))[0];
+
+						if (stateComponent && streetNumberComponent && streetAddressComponent && cityComponent && zipCodeComponent) {
+							this.set('address.street1', streetNumberComponent.short_name + ' ' + streetAddressComponent
+								.short_name);
+							this.set('address.city', cityComponent.short_name);
+							this.set('address.state', stateComponent.short_name);
+							this.set('address.zipCode', zipCodeComponent.short_name);
+							this._ignoreChange = true;
+							this.value = this.formatAddress(this.address.street1, this.address.city, this.address.state, this.address.zipCode);
+							this._ignoreChange = false;
+						} else {
+							this.set('address.street1', '');
+							this.set('address.city', '');
+							this.set('address.state', '');
+							this.set('address.zipCode', '');
+						}
+					}
+				}
+
+				formatAddress(street, city, state, zipCode) {
+					if (!street || !zipCode || !city || !state)
+						return null;
+
+					return `${street} ${city}, ${state} ${zipCode}`;
 				}
 			}
 			customElements.define(TitaniumAddressInput.is, TitaniumAddressInput);
@@ -48,9 +152,7 @@
 				properties: {
 					apiKey: String,
 					value: String,
-					place: Object,
 					autocomplete: Object,
-					ignoreChange: Boolean,
 					address: {
 						notify: true,
 						type: Object,
@@ -60,25 +162,60 @@
 							state: '',
 							zipCode: ''
 						}
+					},
+					readonly: {
+						type: Boolean,
+						value: false
+					},
+					required: {
+						type: Boolean,
+						value: false
+					},
+					alwaysFloatLabel: {
+						type: Boolean,
+						value: false
+					},
+					disabled: {
+						type: Boolean,
+						value: false
+					},
+					focused: {
+						type: Boolean,
+						notify: true
+					},
+					placeholder: {
+						type: String,
+						value: ''
+					},
+					errorMessage: {
+						type: String,
+						value: 'Address not valid'
+					},
+					label: {
+						type: String
 					}
 				},
 				behaviors: [
 					Polymer.IronValidatableBehavior,
 					Polymer.IronFormElementBehavior
 				],
+				_ignoreChange: false,
 				observers: ['onValueChanged(value)'],
 				onValueChanged(value) {
-					if (this.ignoreChange) {
+					if (this._ignoreChange) {
 						return;
 					}
-					this.place = null;
+
 					this.set('address.street1', '');
 					this.set('address.city', '');
 					this.set('address.state', '');
 					this.set('address.zipCode', '');
 				},
 				_getValidity(value) {
-					return this.place && this.place.address_components && this.place.address_components.length >= 7;
+					if (!this.required)
+						return true;
+
+					return this.address && this.address.street1 && this.address.city && this.address.state && this.address.zipCode;
 				},
 				onApiLoad: function () {
 					if (this.$.addressInput) {
@@ -90,17 +227,16 @@
 					}
 				},
 				onChangePlace: function () {
-					this.place = this.autocomplete.getPlace();
-					/* Dont save answers.address to the server! */
+					let place = this.autocomplete.getPlace();
 
-					if (this.place && this.place.address_components) {
-						let stateComponent = this.place.address_components.filter(o => o.types.some(p => p ===
+					if (place && place.address_components) {
+						let stateComponent = place.address_components.filter(o => o.types.some(p => p ===
 							'administrative_area_level_1'))[0];
-						let streetNumberComponent = this.place.address_components.filter(o => o.types.some(p => p === 'street_number'))[
+						let streetNumberComponent = place.address_components.filter(o => o.types.some(p => p === 'street_number'))[
 							0];
-						let streetAddressComponent = this.place.address_components.filter(o => o.types.some(p => p === 'route'))[0];
-						let cityComponent = this.place.address_components.filter(o => o.types.some(p => p === 'locality'))[0];
-						let zipCodeComponent = this.place.address_components.filter(o => o.types.some(p => p === 'postal_code'))[0];
+						let streetAddressComponent = place.address_components.filter(o => o.types.some(p => p === 'route'))[0];
+						let cityComponent = place.address_components.filter(o => o.types.some(p => p === 'locality'))[0];
+						let zipCodeComponent = place.address_components.filter(o => o.types.some(p => p === 'postal_code'))[0];
 
 						if (stateComponent && streetNumberComponent && streetAddressComponent && cityComponent && zipCodeComponent) {
 							this.set('address.street1', streetNumberComponent.short_name + ' ' + streetAddressComponent
@@ -108,9 +244,9 @@
 							this.set('address.city', cityComponent.short_name);
 							this.set('address.state', stateComponent.short_name);
 							this.set('address.zipCode', zipCodeComponent.short_name);
-							this.ignoreChange = true;
+							this._ignoreChange = true;
 							this.value = this.formatAddress(this.address.street1, this.address.city, this.address.state, this.address.zipCode);
-							this.ignoreChange = false;
+							this._ignoreChange = false;
 						} else {
 							this.set('address.street1', '');
 							this.set('address.city', '');

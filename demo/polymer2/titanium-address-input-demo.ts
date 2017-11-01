@@ -3,22 +3,8 @@
 
 @customElement('titanium-address-input-demo')
 class TitaniumAddressInputDemo extends Polymer.Element {
-  @property()
-  roles: Array<string>;
-
-  @property()
-  role: string = 'View All Logs';
-
-  @property()
-  isDev: boolean;
-
-  @listen('tap', 'addRoleButton')
-  addRoleButtonTapped() {
-    this.push('roles', this.role);
-  }
-
-  @listen('tap', 'clearRolesButton')
-  clearRolesButtonTapped() {
-    this.roles = [];
+  @listen('tap', 'submitButton')
+  buttonTapped() {
+    this.$.form.validate();
   }
 }
