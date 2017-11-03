@@ -153,7 +153,7 @@
 						return;
 					}
 
-					let input = this.$.addressInput.$.input.children[0];
+					let input = this.$.addressInput.$.nativeInput;
 					this.autocomplete = new google.maps.places.Autocomplete(input, {
 						types: ['address']
 					});
@@ -327,7 +327,7 @@
 						return;
 					}
 
-					let input = this.$.addressInput.$.input.children[0];
+					let input = this.$.addressInput.$.input;
 					this.autocomplete = new google.maps.places.Autocomplete(input, {
 						types: ['address']
 					});

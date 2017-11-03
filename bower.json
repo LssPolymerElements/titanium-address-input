@@ -1,6 +1,6 @@
 {
   "name": "titanium-address-input",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A simple address selection input that uses Google Maps API.",
   "authors": [
     "Leavitt Software Solutions"
@@ -37,7 +37,8 @@
     "1.x": {
       "dependencies": {
         "polymer": "Polymer/polymer#^1.9.0",
-        "paper-input": "polymerelements/paper-input#^1.1.24",
+        "iron-input": "iron-input#^1.0.11",
+        "paper-input": "paper-input#^1.1.24",
         "google-apis": "GoogleWebComponents/google-apis#^1.1.7",
         "iron-validatable-behavior": "#^1.1.2",
         "iron-form-element-behavior": "#^1.0.7"
@@ -46,7 +47,9 @@
         "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
       },
       "resolutions": {
-        "webcomponentsjs": "^0.7"
+        "webcomponentsjs": "^0.7",
+        "paper-input": "paper-input#^1.1.24",
+        "iron-input": "iron-input#^1.0.11"
       }
     }
   },

@@ -6,8 +6,14 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
     <title>titanium-address-input demo</title>
+    <script>
+        window.Polymer = {
+            lazyRegister: true,
+            dom: 'shadow'
+        };
+    </script>
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
 
-    <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="titanium-address-input-demo.html">
     <link rel="import" href="bower_components/font-roboto/roboto.html">
     <style>
