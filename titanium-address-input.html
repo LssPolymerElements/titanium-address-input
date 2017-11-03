@@ -141,20 +141,24 @@
 				}
 
 				_getValidity(value) {
-					if (!this.required)
+					if (!this.required && !(!!this.value && !this.address.street1))
 						return true;
 
 					return this.address && this.address.street1 && this.address.city && this.address.state && this.address.zipCode;
 				}
 
 				_onApiLoad() {
-					if (this.$.addressInput) {
-						let input = this.$.addressInput.$.input.children[0];
-						this.autocomplete = new google.maps.places.Autocomplete(input, {
-							types: ['address']
-						});
-						google.maps.event.addListener(this.autocomplete, 'place_changed', this._onChangePlace.bind(this));
+					if (!this.$.addressInput) {
+						console.warn('Address input not loaded.');
+						return;
 					}
+
+					let input = this.$.addressInput.$.input.children[0];
+					this.autocomplete = new google.maps.places.Autocomplete(input, {
+						types: ['address']
+					});
+					google.maps.event.addListener(this.autocomplete, 'place_changed', this._onChangePlace.bind(this));
+
 				}
 
 				_onChangePlace() {
@@ -312,19 +316,22 @@
 					this.set('address.zipCode', '');
 				},
 				_getValidity(value) {
-					if (!this.required)
+					if (!this.required && !(!!this.value && !this.address.street1))
 						return true;
 
 					return this.address && this.address.street1 && this.address.city && this.address.state && this.address.zipCode;
 				},
 				_onApiLoad: function () {
-					if (this.$.addressInput) {
-						let input = this.$.addressInput.$.input.children[0];
-						this.autocomplete = new google.maps.places.Autocomplete(input, {
-							types: ['address']
-						});
-						google.maps.event.addListener(this.autocomplete, 'place_changed', this._onChangePlace.bind(this));
+					if (!this.$.addressInput) {
+						console.warn('Address input not loaded.');
+						return;
 					}
+
+					let input = this.$.addressInput.$.input.children[0];
+					this.autocomplete = new google.maps.places.Autocomplete(input, {
+						types: ['address']
+					});
+					google.maps.event.addListener(this.autocomplete, 'place_changed', this._onChangePlace.bind(this));
 				},
 				_onChangePlace: function () {
 					let place = this.autocomplete.getPlace();
