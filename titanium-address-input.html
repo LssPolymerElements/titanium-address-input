@@ -39,7 +39,7 @@
 						/**
 						 * Address will be stored in this property when the user has selected an address.
 						 * {
-						 * 		street1
+						 * 		street
 						 *		city
 						 *		state
 						 *		zipCode
@@ -47,13 +47,7 @@
 						 */
 						address: {
 							notify: true,
-							type: Object,
-							value: {
-								street1: '',
-								city: '',
-								state: '',
-								zipCode: ''
-							}
+							type: Object
 						},
 						/**
 						 * If you're using PaperInputBehavior to implement your own paper-input-like
@@ -126,27 +120,29 @@
 				}
 
 				static get observers() {
-					return ['onValueChanged(value)']
+					return ['onValueChanged(value)', 'onAddressChanged(address)']
 				}
 
+				onAddressChanged(address) {
+					if (!address)
+						return;
+
+					this._ignoreChange = true;
+					this.set('value', this._formatAddress(address.street, address.city, address.state, address.zipCode));
+					this._ignoreChange = false;
+				}
 				onValueChanged(value) {
 					if (this._ignoreChange) {
 						return;
 					}
-
-					this.set('address.street1', '');
-					this.set('address.city', '');
-					this.set('address.state', '');
-					this.set('address.zipCode', '');
+					this.address = null;
 				}
-
 				_getValidity(value) {
-					if (!this.required && !(!!this.value && !this.address.street1))
+					if (!this.required && !(!!this.value && !this.address))
 						return true;
 
-					return this.address && this.address.street1 && this.address.city && this.address.state && this.address.zipCode;
+					return this.address && this.address.street && this.address.city && this.address.state && this.address.zipCode;
 				}
-
 				_onApiLoad() {
 					if (!this.$.addressInput) {
 						console.warn('Address input not loaded.');
@@ -158,9 +154,7 @@
 						types: ['address']
 					});
 					google.maps.event.addListener(this.autocomplete, 'place_changed', this._onChangePlace.bind(this));
-
 				}
-
 				_onChangePlace() {
 					let place = this.autocomplete.getPlace();
 
@@ -174,23 +168,17 @@
 						let zipCodeComponent = place.address_components.filter(o => o.types.some(p => p === 'postal_code'))[0];
 
 						if (stateComponent && streetNumberComponent && streetAddressComponent && cityComponent && zipCodeComponent) {
-							this.set('address.street1', streetNumberComponent.short_name + ' ' + streetAddressComponent
-								.short_name);
-							this.set('address.city', cityComponent.short_name);
-							this.set('address.state', stateComponent.short_name);
-							this.set('address.zipCode', zipCodeComponent.short_name);
-							this._ignoreChange = true;
-							this.value = this._formatAddress(this.address.street1, this.address.city, this.address.state, this.address.zipCode);
-							this._ignoreChange = false;
+							this.address = {
+								street: streetNumberComponent.short_name + ' ' + streetAddressComponent.short_name,
+								city: cityComponent.short_name,
+								state: stateComponent.short_name,
+								zipCode: zipCodeComponent.short_name
+							};
 						} else {
-							this.set('address.street1', '');
-							this.set('address.city', '');
-							this.set('address.state', '');
-							this.set('address.zipCode', '');
+							this.address = null;
 						}
 					}
 				}
-
 				_formatAddress(street, city, state, zipCode) {
 					if (!street || !zipCode || !city || !state)
 						return null;
@@ -210,12 +198,15 @@
 					 * 
 					 *   https://developers.google.com/maps/documentation/javascript/get-api-key
 					 */
-					value: String,
+					value: {
+						type: String,
+						notify: true
+					},
 					autocomplete: Object,
 					/**
 					 * Address will be stored in this property when the user has selected an address.
 					 * {
-					 * 		street1
+					 * 		street
 					 *		city
 					 *		state
 					 *		zipCode
@@ -223,13 +214,7 @@
 					 */
 					address: {
 						notify: true,
-						type: Object,
-						value: {
-							street1: '',
-							city: '',
-							state: '',
-							zipCode: ''
-						}
+						type: Object
 					},
 					/**
 					 * If you're using PaperInputBehavior to implement your own paper-input-like
@@ -304,24 +289,28 @@
 					Polymer.IronFormElementBehavior
 				],
 				_ignoreChange: false,
-				observers: ['onValueChanged(value)'],
+				observers: ['onValueChanged(value)', 'onAddressChanged(address)'],
+				onAddressChanged(address) {
+					if (!address)
+						return;
+
+					this._ignoreChange = true;
+					this.set('value', this._formatAddress(address.street, address.city, address.state, address.zipCode));
+					this._ignoreChange = false;
+				},
 				onValueChanged(value) {
 					if (this._ignoreChange) {
 						return;
 					}
-
-					this.set('address.street1', '');
-					this.set('address.city', '');
-					this.set('address.state', '');
-					this.set('address.zipCode', '');
+					this.address = null;
 				},
 				_getValidity(value) {
-					if (!this.required && !(!!this.value && !this.address.street1))
+					if (!this.required && !(!!this.value && !this.address))
 						return true;
 
-					return this.address && this.address.street1 && this.address.city && this.address.state && this.address.zipCode;
+					return this.address && this.address.street && this.address.city && this.address.state && this.address.zipCode;
 				},
-				_onApiLoad: function () {
+				_onApiLoad() {
 					if (!this.$.addressInput) {
 						console.warn('Address input not loaded.');
 						return;
@@ -333,7 +322,7 @@
 					});
 					google.maps.event.addListener(this.autocomplete, 'place_changed', this._onChangePlace.bind(this));
 				},
-				_onChangePlace: function () {
+				_onChangePlace() {
 					let place = this.autocomplete.getPlace();
 
 					if (place && place.address_components) {
@@ -346,23 +335,18 @@
 						let zipCodeComponent = place.address_components.filter(o => o.types.some(p => p === 'postal_code'))[0];
 
 						if (stateComponent && streetNumberComponent && streetAddressComponent && cityComponent && zipCodeComponent) {
-							this.set('address.street1', streetNumberComponent.short_name + ' ' + streetAddressComponent
-								.short_name);
-							this.set('address.city', cityComponent.short_name);
-							this.set('address.state', stateComponent.short_name);
-							this.set('address.zipCode', zipCodeComponent.short_name);
-							this._ignoreChange = true;
-							this.value = this._formatAddress(this.address.street1, this.address.city, this.address.state, this.address.zipCode);
-							this._ignoreChange = false;
+							this.address = {
+								street: streetNumberComponent.short_name + ' ' + streetAddressComponent.short_name,
+								city: cityComponent.short_name,
+								state: stateComponent.short_name,
+								zipCode: zipCodeComponent.short_name
+							};
 						} else {
-							this.set('address.street1', '');
-							this.set('address.city', '');
-							this.set('address.state', '');
-							this.set('address.zipCode', '');
+							this.address = null;
 						}
 					}
 				},
-				_formatAddress: function (street, city, state, zipCode) {
+				_formatAddress(street, city, state, zipCode) {
 					if (!street || !zipCode || !city || !state)
 						return null;
 
