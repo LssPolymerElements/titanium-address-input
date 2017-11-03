@@ -1,0 +1,15 @@
+{
+  "name": "titanium-address-input-demo",
+  "dependencies": {
+    "polymer": "^1.10.1",
+    "polymer-ts": "*",
+    "webcomponentsjs": "^1.0.12",
+    "titanium-address-input": "../../",
+    "font-roboto": "PolymerElements/font-roboto#^1.0.1",
+    "paper-button": "PolymerElements/paper-button#^1.0.0",
+    "iron-form": "^1.1.6"
+  },
+  "resolutions": {
+    "webcomponentsjs": "^0.7.24"
+  }
+}

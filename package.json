@@ -1,0 +1,30 @@
+{
+  "name": "titanium-address-input",
+  "version": "1.0.2",
+  "description": "Leavitt Manage Side Menu Hybrid",
+  "main": "titanium-address-input.html",
+  "dependencies": {},
+  "devDependencies": {
+    "clang-format": "^1.0.55",
+    "jshint": "^2.9.5",
+    "bower": "*"
+  },
+  "scripts": {
+    "lint": "jshint \"titanium-address-input.js\" --extract=always",
+    "test": "npm run lint && npm run p1-demo:setup && npm run p2-demo:setup",
+    "p1-demo:setup": "cd demo/polymer1 && npm i && npm run build",
+    "p2-demo:setup": "cd demo/polymer2 && npm i && npm run build",
+    "p1-demo:serve": "cd demo/polymer1 && npm run serve",
+    "p2-demo:serve": "cd demo/polymer2 && npm run serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LssPolymerElements/titanium-address-input.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LssPolymerElements/titanium-address-input/issues"
+  },
+  "homepage": "https://github.com/LssPolymerElements/titanium-address-input#readme"
+}
