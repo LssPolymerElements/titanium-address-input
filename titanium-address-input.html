@@ -161,8 +161,7 @@
 					if (place && place.address_components) {
 						let stateComponent = place.address_components.filter(function (o) {
 							o.types.some(function (p) {
-								p ===
-									'administrative_area_level_1'
+								p === 'administrative_area_level_1'
 							})
 						})[0];
 						let streetNumberComponent = place.address_components.filter(function (o) {
