@@ -159,13 +159,32 @@
 					let place = this.autocomplete.getPlace();
 
 					if (place && place.address_components) {
-						let stateComponent = place.address_components.filter(o => o.types.some(p => p ===
-							'administrative_area_level_1'))[0];
-						let streetNumberComponent = place.address_components.filter(o => o.types.some(p => p === 'street_number'))[
-							0];
-						let streetAddressComponent = place.address_components.filter(o => o.types.some(p => p === 'route'))[0];
-						let cityComponent = place.address_components.filter(o => o.types.some(p => p === 'locality'))[0];
-						let zipCodeComponent = place.address_components.filter(o => o.types.some(p => p === 'postal_code'))[0];
+						let stateComponent = place.address_components.filter(function (o) {
+							o.types.some(function (p) {
+								p ===
+									'administrative_area_level_1'
+							})
+						})[0];
+						let streetNumberComponent = place.address_components.filter(function (o) {
+							o.types.some(function (p) {
+								p === 'street_number'
+							})
+						})[0];
+						let streetAddressComponent = place.address_components.filter(function (o) {
+							o.types.some(function (p) {
+								p === 'route'
+							})
+						})[0];
+						let cityComponent = place.address_components.filter(function (o) {
+							o.types.some(function (p) {
+								p === 'locality'
+							})
+						})[0];
+						let zipCodeComponent = place.address_components.filter(function (o) {
+							o.types.some(function (p) {
+								p === 'postal_code'
+							})
+						})[0];
 
 						if (stateComponent && streetNumberComponent && streetAddressComponent && cityComponent && zipCodeComponent) {
 							this.address = {
