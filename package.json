@@ -10,7 +10,7 @@
     "bower": "*"
   },
   "scripts": {
-    "lint": "jshint \"titanium-address-input.js\" --extract=always",
+    "lint": "jshint \"titanium-address-input.html\" --extract=always",
     "test": "npm run lint && npm run p1-demo:setup && npm run p2-demo:setup",
     "p1-demo:setup": "cd demo/polymer1 && npm i && npm run build",
     "p2-demo:setup": "cd demo/polymer2 && npm i && npm run build",

@@ -20,6 +20,7 @@
 	<script>
 		if (Polymer.Element) {
 			// Polymer 2
+			/*global google */
 			class TitaniumAddressInput extends Polymer.mixinBehaviors([Polymer.IronValidatableBehavior, Polymer.IronFormElementBehavior],
 				Polymer.Element) {
 				static get is() {
@@ -120,7 +121,7 @@
 				}
 
 				static get observers() {
-					return ['onValueChanged(value)', 'onAddressChanged(address)']
+					return ['onValueChanged(value)', 'onAddressChanged(address)'];
 				}
 
 				onAddressChanged(address) {
@@ -131,13 +132,13 @@
 					this.set('value', this._formatAddress(address.street, address.city, address.state, address.zipCode));
 					this._ignoreChange = false;
 				}
-				onValueChanged(value) {
+				onValueChanged() {
 					if (this._ignoreChange) {
 						return;
 					}
 					this.address = null;
 				}
-				_getValidity(value) {
+				_getValidity() {
 					if (!this.required && !(!!this.value && !this.address))
 						return true;
 
@@ -297,13 +298,13 @@
 					this.set('value', this._formatAddress(address.street, address.city, address.state, address.zipCode));
 					this._ignoreChange = false;
 				},
-				onValueChanged(value) {
+				onValueChanged() {
 					if (this._ignoreChange) {
 						return;
 					}
 					this.address = null;
 				},
-				_getValidity(value) {
+				_getValidity() {
 					if (!this.required && !(!!this.value && !this.address))
 						return true;
 
