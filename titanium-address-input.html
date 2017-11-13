@@ -315,7 +315,7 @@
 						return;
 					}
 
-					let input = this.$.addressInput.$.input;
+					let input = this.$.addressInput.$.nativeInput || this.$.addressInput.$.input;
 					this.autocomplete = new google.maps.places.Autocomplete(input, {
 						types: ['address']
 					});
