@@ -29,11 +29,14 @@
 
 				static get properties() {
 					return {
-						apiKey: String,
 						/**
 						 *   Required. Google Maps API Key.
 						 * 
 						 *   https://developers.google.com/maps/documentation/javascript/get-api-key
+						 */
+						apiKey: String,
+						/**
+						 *   The string contained in the text box. Changed as a user types, or to a formatted address when an address is selected
 						 */
 						value: String,
 						autocomplete: Object,
@@ -192,11 +195,14 @@
 			Polymer({
 				is: 'titanium-address-input',
 				properties: {
-					apiKey: String,
 					/**
 					 *   Required. Google Maps API Key.
 					 * 
 					 *   https://developers.google.com/maps/documentation/javascript/get-api-key
+					 */
+					apiKey: String,
+					/**
+					 *   The string contained in the text box. Changed as a user types, or to a formatted address when an address is selected
 					 */
 					value: {
 						type: String,
