@@ -119,6 +119,14 @@
 						 */
 						label: {
 							type: String
+						},
+						/**
+						 * Set to true to validate partial addresses, 
+						 * such as selecting only a city or selecting a street without a street address.
+						 */
+						allowPartialAddress: {
+							type: Boolean,
+							value: false
 						}
 					};
 				}
@@ -144,6 +152,10 @@
 				_getValidity() {
 					if (!this.required && !(!!this.value && !this.address))
 						return true;
+
+					if (this.allowPartialAddress) {
+						return this.address && this.address.state;
+					}
 
 					return this.address && this.address.street && this.address.city && this.address.state && this.address.zipCode;
 				}
@@ -177,16 +189,28 @@
 								state: stateComponent.short_name,
 								zipCode: zipCodeComponent.short_name
 							};
+						} else if (this.allowPartialAddress && stateComponent) {
+							this.address = {
+								street: (streetNumberComponent ? streetNumberComponent.short_name + ' ' : '') + (streetAddressComponent ?
+									streetAddressComponent.short_name : null),
+								city: cityComponent ? cityComponent.short_name : null,
+								state: stateComponent.short_name,
+								zipCode: zipCodeComponent ? zipCodeComponent.short_name : null
+							};
 						} else {
 							this.address = null;
 						}
 					}
 				}
 				_formatAddress(street, city, state, zipCode) {
-					if (!street || !zipCode || !city || !state)
+					if (!state)
 						return null;
 
-					return `${street} ${city}, ${state} ${zipCode}`;
+					street = street ? `${street} ` : '';
+					city = city ? `${city}, ` : '';
+					zipCode = zipCode ? ` ${zipCode}` : '';
+
+					return `${street}${city}${state}${zipCode}`;
 				}
 			}
 			customElements.define(TitaniumAddressInput.is, TitaniumAddressInput);
@@ -288,6 +312,14 @@
 					 */
 					label: {
 						type: String
+					},
+					/**
+					 * Set to true to validate partial addresses, 
+					 * such as selecting only a city or selecting a street without a street address.
+					 */
+					allowPartialAddress: {
+						type: Boolean,
+						value: false
 					}
 				},
 				behaviors: [
@@ -313,6 +345,10 @@
 				_getValidity() {
 					if (!this.required && !(!!this.value && !this.address))
 						return true;
+
+					if (this.allowPartialAddress) {
+						return this.address && this.address.state;
+					}
 
 					return this.address && this.address.street && this.address.city && this.address.state && this.address.zipCode;
 				},
@@ -346,16 +382,28 @@
 								state: stateComponent.short_name,
 								zipCode: zipCodeComponent.short_name
 							};
+						} else if (this.allowPartialAddress && stateComponent) {
+							this.address = {
+								street: (streetNumberComponent ? streetNumberComponent.short_name + ' ' : '') + (streetAddressComponent ?
+									streetAddressComponent.short_name : null),
+								city: cityComponent ? cityComponent.short_name : null,
+								state: stateComponent.short_name,
+								zipCode: zipCodeComponent ? zipCodeComponent.short_name : null
+							};
 						} else {
 							this.address = null;
 						}
 					}
 				},
 				_formatAddress(street, city, state, zipCode) {
-					if (!street || !zipCode || !city || !state)
+					if (!state)
 						return null;
 
-					return `${street} ${city}, ${state} ${zipCode}`;
+					street = street ? `${street} ` : '';
+					city = city ? `${city}, ` : '';
+					zipCode = zipCode ? ` ${zipCode}` : '';
+
+					return `${street}${city}${state}${zipCode}`;
 				}
 			});
 		}
