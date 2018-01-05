@@ -50,6 +50,11 @@
 							notify: true,
 							type: Object
 						},
+						
+						limitToCountries: {
+							type: Array,
+							value: function () { return []; } 
+						},
 						/**
 						 * If you're using PaperInputBehavior to implement your own paper-input-like
 						 * element, bind this to the `<input is="iron-input">`'s `readonly` property.
@@ -154,6 +159,12 @@
 					this.autocomplete = new google.maps.places.Autocomplete(input, {
 						types: ['address']
 					});
+					
+					/* Allows addresses to be limited to a particular country or list of countries */
+					this.autocomplete.setComponentRestrictions({
+						'country': this.limitToCountries
+					});
+					
 					google.maps.event.addListener(this.autocomplete, 'place_changed', this._onChangePlace.bind(this));
 				}
 				_onChangePlace() {
@@ -215,6 +226,14 @@
 					address: {
 						notify: true,
 						type: Object
+					},
+					/**
+					 * Array of countries to limit the search to. 
+					 * See https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-multiple-countries
+					 */
+					limitToCountries: {
+						type: Array,
+						value: function () { return []; }
 					},
 					/**
 					 * If you're using PaperInputBehavior to implement your own paper-input-like
@@ -320,6 +339,12 @@
 					this.autocomplete = new google.maps.places.Autocomplete(input, {
 						types: ['address']
 					});
+
+					/* Allows addresses to be limited to a particular country or list of countries */
+					this.autocomplete.setComponentRestrictions({
+						'country': this.limitToCountries
+					});
+
 					google.maps.event.addListener(this.autocomplete, 'place_changed', this._onChangePlace.bind(this));
 				},
 				_onChangePlace() {
