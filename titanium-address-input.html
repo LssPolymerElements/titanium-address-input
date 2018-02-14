@@ -7,7 +7,6 @@
 <dom-module id="titanium-address-input">
 	<template>
 		<style>
-
 		</style>
 		<google-maps-api libraries="places" api-key="[[apiKey]]" on-api-load="_onApiLoad"></google-maps-api>
 		<paper-input id="addressInput" invalid="[[invalid]]" readonly="[[readonly]]" value="{{value}}" always-float-label="[[alwaysFloatLabel]]"
@@ -43,10 +42,12 @@
 						/**
 						 * Address will be stored in this property when the user has selected an address.
 						 * {
-						 * 		street
-						 *		city
-						 *		state
-						 *		zipCode
+						 *		streetNumber
+						 *		route
+						 *		locality
+						 *		administrativeAreaLevel1
+						 *		postalCode
+						 *		country
 						 * }
 						 */
 						address: {
@@ -121,10 +122,41 @@
 							type: String
 						},
 						/**
-						 * Set to true to validate partial addresses, 
-						 * such as selecting only a city or selecting a street without a street address.
+						 * Set to true to validate partial addresses that do not include a street number e.g. "North Main Street Cedar City, UT 84720, United States"
 						 */
-						allowPartialAddress: {
+						optionalStreetNumber: {
+							type: Boolean,
+							value: false
+						},
+
+						/**
+						 * Set to true to validate partial addresses that do not include a street route e.g. "Cedar City, UT 84720, United States"
+						 */
+						optionalRoute: {
+							type: Boolean,
+							value: false
+						},
+
+						/**
+						 * Set to true to validate partial addresses that do not include a postal code e.g. "Cedar City, UT, United States"
+						 */
+						optionalPostalCode: {
+							type: Boolean,
+							value: false
+						},
+
+						/**
+						 * Set to true to validate partial addresses that do not include a locality (city) e.g. "UT, United States"
+						 */
+						optionalLocality: {
+							type: Boolean,
+							value: false
+						},
+
+						/**
+						 * Set to true to validate partial addresses that do not include an administrative_area_level_1 (state) e.g. "United States"
+						 */
+						optionalAdministrativeAreaLevel1: {
 							type: Boolean,
 							value: false
 						}
@@ -132,7 +164,14 @@
 				}
 
 				static get observers() {
-					return ['onValueChanged(value)', 'onAddressChanged(address)'];
+					return ['onValueChanged(value)', 'onAddressChanged(address)', 'onOptionsChanged(optionalStreetNumber)'];
+				}
+
+				onOptionsChanged(optionalStreetNumber) {
+					if (!this.autocomplete)
+						return;
+
+					this.autocomplete.setTypes(optionalStreetNumber ? [] : [address]);
 				}
 
 				onAddressChanged(address) {
@@ -140,7 +179,7 @@
 						return;
 
 					this._ignoreChange = true;
-					this.set('value', this._formatAddress(address.street, address.city, address.state, address.zipCode));
+					this.set('value', this._formatAddress(address));
 					this._ignoreChange = false;
 				}
 				onValueChanged() {
@@ -153,11 +192,12 @@
 					if (!this.required && !(!!this.value && !this.address))
 						return true;
 
-					if (this.allowPartialAddress) {
-						return this.address && this.address.state;
-					}
-
-					return this.address && this.address.street && this.address.city && this.address.state && this.address.zipCode;
+					return this.address &&
+						(this.address.streetNumber || this.optionalStreetNumber) &&
+						(this.address.route || this.optionalRoute) &&
+						(this.address.locality || this.optionalLocality) &&
+						(this.address.administrativeAreaLevel1 || this.optionalAdministrativeAreaLevel1) &&
+						(this.address.postalCode || this.optionalPostalCode);
 				}
 				_onApiLoad() {
 					if (!this.$.addressInput) {
@@ -166,9 +206,10 @@
 					}
 
 					let input = this.$.addressInput.$.nativeInput;
-					this.autocomplete = new google.maps.places.Autocomplete(input, {
-						types: ['address']
-					});
+					let autocompleteOptions = {
+						types: this.optionalStreetNumber ? [] : ['address']
+					};
+					this.autocomplete = new google.maps.places.Autocomplete(input, autocompleteOptions);
 					google.maps.event.addListener(this.autocomplete, 'place_changed', this._onChangePlace.bind(this));
 				}
 				_onChangePlace() {
@@ -181,36 +222,27 @@
 						let streetAddressComponent = place.address_components.filter(o => o.types.some(p => p === 'route'))[0];
 						let cityComponent = place.address_components.filter(o => o.types.some(p => p === 'locality'))[0];
 						let zipCodeComponent = place.address_components.filter(o => o.types.some(p => p === 'postal_code'))[0];
+						let countryComponent = place.address_components.filter(o => o.types.some(p => p === 'country'))[0];
 
-						if (stateComponent && streetNumberComponent && streetAddressComponent && cityComponent && zipCodeComponent) {
-							this.address = {
-								street: streetNumberComponent.short_name + ' ' + streetAddressComponent.short_name,
-								city: cityComponent.short_name,
-								state: stateComponent.short_name,
-								zipCode: zipCodeComponent.short_name
-							};
-						} else if (this.allowPartialAddress && stateComponent) {
-							this.address = {
-								street: (streetNumberComponent ? streetNumberComponent.short_name + ' ' : '') + (streetAddressComponent ?
-									streetAddressComponent.short_name : null),
-								city: cityComponent ? cityComponent.short_name : null,
-								state: stateComponent.short_name,
-								zipCode: zipCodeComponent ? zipCodeComponent.short_name : null
-							};
-						} else {
-							this.address = null;
+						this.address = {
+							streetNumber: streetNumberComponent ? streetNumberComponent.short_name : null,
+							route: streetAddressComponent ? streetAddressComponent.short_name : null,
+							locality: cityComponent ? cityComponent.short_name : null,
+							administrativeAreaLevel1: stateComponent ? stateComponent.short_name : null,
+							postalCode: zipCodeComponent ? zipCodeComponent.short_name : null,
+							country: countryComponent ? countryComponent.short_name : null
 						}
 					}
 				}
-				_formatAddress(street, city, state, zipCode) {
-					if (!state)
-						return null;
+				_formatAddress(address) {
+					let streetNumber = address.streetNumber ? `${address.streetNumber} ` : '';
+					let route = address.route ? `${address.route} ` : '';
+					let locality = address.locality ? `${address.locality} ` : '';
+					let administrativeAreaLevel1 = address.administrativeAreaLevel1 ? `${address.administrativeAreaLevel1} ` : '';
+					let postalCode = address.postalCode ? `${address.postalCode}` : '';
+					let country = address.country ? `${address.country}` : '';
 
-					street = street ? `${street} ` : '';
-					city = city ? `${city}, ` : '';
-					zipCode = zipCode ? ` ${zipCode}` : '';
-
-					return `${street}${city}${state}${zipCode}`;
+					return `${streetNumber}${route}${locality}${administrativeAreaLevel1}${postalCode}${country}`;
 				}
 			}
 			customElements.define(TitaniumAddressInput.is, TitaniumAddressInput);
@@ -236,10 +268,12 @@
 					/**
 					 * Address will be stored in this property when the user has selected an address.
 					 * {
-					 * 		street
-					 *		city
-					 *		state
-					 *		zipCode
+					 *		streetNumber
+					 *		route
+					 *		locality
+					 *		administrativeAreaLevel1
+					 *		postalCode
+					 *		country
 					 * }
 					 */
 					address: {
@@ -314,10 +348,40 @@
 						type: String
 					},
 					/**
-					 * Set to true to validate partial addresses, 
-					 * such as selecting only a city or selecting a street without a street address.
+					 * Set to true to validate partial addresses that do not include a street number e.g. "North Main Street Cedar City, UT 84720, United States"
 					 */
-					allowPartialAddress: {
+					optionalStreetNumber: {
+						type: Boolean,
+						value: false
+					},
+					/**
+					 * Set to true to validate partial addresses that do not include a street route e.g. "Cedar City, UT 84720, United States"
+					 */
+					optionalRoute: {
+						type: Boolean,
+						value: false
+					},
+
+					/**
+					 * Set to true to validate partial addresses that do not include a postal code e.g. "Cedar City, UT, United States"
+					 */
+					optionalPostalCode: {
+						type: Boolean,
+						value: false
+					},
+
+					/**
+					 * Set to true to validate partial addresses that do not include a locality (city) e.g. "UT, United States"
+					 */
+					optionalLocality: {
+						type: Boolean,
+						value: false
+					},
+
+					/**
+					 * Set to true to validate partial addresses that do not include an administrative_area_level_1 (state) e.g. "United States"
+					 */
+					optionalAdministrativeAreaLevel1: {
 						type: Boolean,
 						value: false
 					}
@@ -327,13 +391,19 @@
 					Polymer.IronFormElementBehavior
 				],
 				_ignoreChange: false,
-				observers: ['onValueChanged(value)', 'onAddressChanged(address)'],
+				observers: ['onValueChanged(value)', 'onAddressChanged(address)', 'onOptionsChanged(optionalStreetNumber)'],
+				onOptionsChanged(optionalStreetNumber) {
+					if (!this.autocomplete)
+						return;
+
+					this.autocomplete.setTypes(optionalStreetNumber ? [] : [address]);
+				},
 				onAddressChanged(address) {
 					if (!address)
 						return;
 
 					this._ignoreChange = true;
-					this.set('value', this._formatAddress(address.street, address.city, address.state, address.zipCode));
+					this.set('value', this._formatAddress(address));
 					this._ignoreChange = false;
 				},
 				onValueChanged() {
@@ -346,11 +416,13 @@
 					if (!this.required && !(!!this.value && !this.address))
 						return true;
 
-					if (this.allowPartialAddress) {
-						return this.address && this.address.state;
-					}
+					return this.address &&
+						(this.address.streetNumber || this.optionalStreetNumber) &&
+						(this.address.route || this.optionalRoute) &&
+						(this.address.locality || this.optionalLocality) &&
+						(this.address.administrativeAreaLevel1 || this.optionalAdministrativeAreaLevel1) &&
+						(this.address.postalCode || this.optionalPostalCode);
 
-					return this.address && this.address.street && this.address.city && this.address.state && this.address.zipCode;
 				},
 				_onApiLoad() {
 					if (!this.$.addressInput) {
@@ -359,9 +431,10 @@
 					}
 
 					let input = this.$.addressInput.$.nativeInput || this.$.addressInput.$.input;
-					this.autocomplete = new google.maps.places.Autocomplete(input, {
-						types: ['address']
-					});
+					let autocompleteOptions = {
+						types: this.optionalStreetNumber ? [] : ['address']
+					};
+					this.autocomplete = new google.maps.places.Autocomplete(input, autocompleteOptions);
 					google.maps.event.addListener(this.autocomplete, 'place_changed', this._onChangePlace.bind(this));
 				},
 				_onChangePlace() {
@@ -374,36 +447,27 @@
 						let streetAddressComponent = place.address_components.filter(o => o.types.some(p => p === 'route'))[0];
 						let cityComponent = place.address_components.filter(o => o.types.some(p => p === 'locality'))[0];
 						let zipCodeComponent = place.address_components.filter(o => o.types.some(p => p === 'postal_code'))[0];
+						let countryComponent = place.address_components.filter(o => o.types.some(p => p === 'country'))[0];
 
-						if (stateComponent && streetNumberComponent && streetAddressComponent && cityComponent && zipCodeComponent) {
-							this.address = {
-								street: streetNumberComponent.short_name + ' ' + streetAddressComponent.short_name,
-								city: cityComponent.short_name,
-								state: stateComponent.short_name,
-								zipCode: zipCodeComponent.short_name
-							};
-						} else if (this.allowPartialAddress && stateComponent) {
-							this.address = {
-								street: (streetNumberComponent ? streetNumberComponent.short_name + ' ' : '') + (streetAddressComponent ?
-									streetAddressComponent.short_name : null),
-								city: cityComponent ? cityComponent.short_name : null,
-								state: stateComponent.short_name,
-								zipCode: zipCodeComponent ? zipCodeComponent.short_name : null
-							};
-						} else {
-							this.address = null;
+						this.address = {
+							streetNumber: streetNumberComponent ? streetNumberComponent.short_name : null,
+							route: streetAddressComponent ? streetAddressComponent.short_name : null,
+							locality: cityComponent ? cityComponent.short_name : null,
+							administrativeAreaLevel1: stateComponent ? stateComponent.short_name : null,
+							postalCode: zipCodeComponent ? zipCodeComponent.short_name : null,
+							country: countryComponent ? countryComponent.short_name : null,
 						}
 					}
 				},
-				_formatAddress(street, city, state, zipCode) {
-					if (!state)
-						return null;
+				_formatAddress(address) {
+					let streetNumber = address.streetNumber ? `${address.streetNumber} ` : '';
+					let route = address.route ? `${address.route} ` : '';
+					let locality = address.locality ? `${address.locality} ` : '';
+					let administrativeAreaLevel1 = address.administrativeAreaLevel1 ? `${address.administrativeAreaLevel1} ` : '';
+					let postalCode = address.postalCode ? `${address.postalCode} ` : '';
+					let country = address.country ? `${address.country}` : '';
 
-					street = street ? `${street} ` : '';
-					city = city ? `${city}, ` : '';
-					zipCode = zipCode ? ` ${zipCode}` : '';
-
-					return `${street}${city}${state}${zipCode}`;
+					return `${streetNumber}${route}${locality}${administrativeAreaLevel1}${postalCode}${country}`;
 				}
 			});
 		}
