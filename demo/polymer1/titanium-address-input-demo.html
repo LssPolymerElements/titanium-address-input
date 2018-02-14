@@ -2,13 +2,14 @@
 <link rel="import" href="bower_components/polymer-ts/polymer-ts.html">
 <link rel="import" href="bower_components/paper-button/paper-button.html">
 <link rel="import" href="bower_components/iron-form/iron-form.html">
+<link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
 
 <link rel="import" href="bower_components/titanium-address-input/titanium-address-input.html">
 
 <dom-module id="titanium-address-input-demo">
     <template>
         <style>
-             :host {
+            :host {
                 display: block;
                 margin: 16px;
             }
@@ -19,26 +20,36 @@
 
             .container {
                 margin: 8px;
-                height: 200px;
+                height: 400px;
                 width: 500px;
                 border: 1px dashed black;
                 overflow-y: auto;
                 padding: 8px;
+            }
+
+            titanium-address-input {
+                margin: 16px;
+            }
+
+            paper-checkbox {
+                display: block;
             }
         </style>
 
         <h3>Titanium Address Input Demo</h3>
         <div class="container">
             <form is="iron-form" id="form">
-                <titanium-address-input id="one" placeholder="Select Address" required always-float-label label="Home Address" api-key="AIzaSyCTiFwEzAkuXWgFQTr4GGAX5VpYR2aVxzw">
+                <titanium-address-input placeholder="Select Address" optional-street-number="[[optionalStreetNumber]]" optional-administrative-area-level1="[[optionalAdministrativeAreaLevel1]]"
+                    optional-locality="[[optionalLocality]]" optional-route="[[optionalRoute]]" optional-postal-code="[[optionalPostalCode]]"
+                    required always-float-label label="Home Address" api-key="AIzaSyCTiFwEzAkuXWgFQTr4GGAX5VpYR2aVxzw">
                     <div slot="prefix">:-) </div>
                     <div slot="suffix">Z </div>
                 </titanium-address-input>
-
-                <titanium-address-input id="two" placeholder="Select Address" always-float-label label="Beach Address (optional)" api-key="AIzaSyCTiFwEzAkuXWgFQTr4GGAX5VpYR2aVxzw">
-                    <div slot="prefix">:-) </div>
-                    <div slot="suffix">Z </div>
-                </titanium-address-input>
+                <paper-checkbox checked="{{optionalStreetNumber}}">Optional Street Number</paper-checkbox>
+                <paper-checkbox checked="{{optionalRoute}}">Optional Street Route (Street Name)</paper-checkbox>
+                <paper-checkbox checked="{{optionalPostalCode}}">Optional Postal Code</paper-checkbox>
+                <paper-checkbox checked="{{optionalLocality}}">Optional Locality (City)</paper-checkbox>
+                <paper-checkbox checked="{{optionalAdministrativeAreaLevel1}}">Optional Administrative Area Level 1 (State)</paper-checkbox>
             </form>
         </div>
         <paper-button id="submitButton" raised> Submit</paper-button>
