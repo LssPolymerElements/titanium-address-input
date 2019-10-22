@@ -5,9 +5,9 @@
   "main": "titanium-address-input.html",
   "dependencies": {},
   "devDependencies": {
+    "bower": "*",
     "clang-format": "^1.0.55",
-    "jshint": "^2.9.5",
-    "bower": "*"
+    "jshint": "^2.10.2"
   },
   "scripts": {
     "lint": "jshint \"titanium-address-input.html\" --extract=always",
